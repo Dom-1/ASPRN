@@ -1,15 +1,30 @@
 use std::env;
+use std::fs;
 use std::io::*;
 use std::process::{Command, Stdio};
 
 fn main() -> std::io::Result<()> {
     let input: Vec<String> = env::args().collect();
-    dbg!(input);
+    let node = &input[1];
+    let message = fs::read(&input[2]);
+    let messages_db: Vec<String> = Vec::new();
+    /*
+    if message doesn't already exist in db
+        load message into db
+        if message not meant for this node, then send to peers
+        else process message data and respond correctly
+    else disregard message
+    */
     Ok(())
 }
 
+fn get_peers() -> Vec<String> {
+    let mut child = Command::new("dtnquery peers");
+    Vec::new()
+}
+
 fn send_packet(node: String, packet: String) -> Result<()> {
-    let mut child = Command::new(format!("dtnsend -r dtn://{node}"))
+    let mut child = Command::new(format!("dtnsend -r dtn://{node}/incoming"))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()

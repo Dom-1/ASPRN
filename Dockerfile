@@ -1,17 +1,17 @@
-FROM rust:1.40 as builder
+FROM rust:1.65-slim-buster
 
-WORKDIR /asprn
+WORKDIR /asprn/responder-dir
 COPY responder/ .
 
 RUN cargo install --path .
 RUN cargo install dtn7
 
-FROM alpine:latest
-# RUN apk add extra-runtime-dependencies 
-WORKDIR /usr/local/cargo/bin/
-COPY --from=builder /usr/local/cargo/bin/* .
-
+ENV PATH="${PATH}:/asprn"
 WORKDIR /asprn
-COPY asprn/* .
 
-CMD ["run.sh"]
+RUN cp /asprn/responder-dir/target/debug/responder .
+RUN cp /usr/local/cargo/bin/dtn* .
+ADD asprn/run.sh ./run.sh
+
+RUN chmod +x run.sh
+CMD ["./run.sh"]

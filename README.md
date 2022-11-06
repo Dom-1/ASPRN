@@ -4,6 +4,20 @@
 This is the project repository for Autonomous Self-Piloting Relay Nodes, a TigerHacks 2022 submission.
 
 The goal of this projec is to enable computer scientists and astronauts alike to communicate in space, with the goal of enabling interplanetary travel.
+NASA is currently developing an interplanetary protocol for communications, known as Delay-Tolerant Networking (DTN). Our project aims to implement this protocol, and develop a vast web of DTN capable "routers" that we deploy throughout the solar system. This enhances communication infrastructure in space, and aims to be a factor driving humanity towards space travel.
+
+## Current Goals
+
+
+|      Goal      | Implemented? |
+| -------------- | ------------ |
+| Auto DTN Routing |     ✅     |
+| Dockerization  |      ✅      |
+| Protocol Layer Extensibility | ✅ |
+| Server-Response Architecture | ✅ |
+| 3D Model | ⚛️ WIP |
+| Self-Piloting | ⚛️ WIP |
+| Sensor Data Aquisition | ⚛️ WIP |
 
 ## How to get started
 A couple of the main goals of ASPRN is ease of use and ease of setup, so we built a docker container that automatically sets up a node for you!
@@ -47,3 +61,11 @@ And your instance is all set! If the node can talk to other DTN-accessible nodes
 ## The Node's Theoretical Space Suit
 
 ![Picture of ship](https://github.com/Dom-1/ASPRN/blob/main/ASPRNModule.webp?raw=true)
+
+## Future Possibilities
+ * Add sensors to ASPRN node to collect space data
+ * Auto update scripts w/ git hooks
+ * Space data aquisition (Google maps, but the solar system (Google Solar))
+ * Dispatch reposition coordinates to drones (ground piloting, advanced route planning)
+ * Use SpinLaunch platform for individual node launches
+ 

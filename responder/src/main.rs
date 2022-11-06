@@ -28,13 +28,16 @@ fn main() {
                 if !String::from_utf8(parsed.data.clone())
                     .unwrap()
                     .contains("got it")
+                // if the packet is not a response
                 {
                     println!(
+                        // print the packet
                         "\"{}\" from {}",
                         String::from_utf8(parsed.data.clone()).unwrap(),
                         from_node
                     );
                     send_response(
+                        // and send a response of your defined packet type
                         String::from(from_node),
                         ("ExampleProtocol", "EXMPL"),
                         String::from("got it"),
@@ -103,20 +106,10 @@ fn send_response(
     packet_data.push('(');
     packet_data.push_str(&chr_array_from_string(packet));
     packet_data.push_str("))");
-    println!("Generated packet: {}", packet_data);
-    /*
-    let echo = Command::new("echo")
-        .arg("-n")
-        .arg(&packet_data)
-        .stdout(Stdio::piped())
-        .spawn()?
-        .wait_with_output()
-        .expect("failed to spawn parent process");
-    */
 
     let mut child = Command::new("dtnsend")
         .arg("-r")
-        .arg(format!("dtn://{}/incoming", node))
+        .arg(format!("{}incoming", node))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -129,8 +122,9 @@ fn send_response(
             .expect("Failed to write to stdin");
     });
 
-    let output = child.wait_with_output().expect("Failed to read stdout");
-    println!("{output:?}");
+    // this is output that can be used for diagnostics
+    // simply println!("{:?}", _output); to see what the output of the subprocess is
+    let _output = child.wait_with_output().expect("Failed to read stdout");
 
     Ok(())
 }

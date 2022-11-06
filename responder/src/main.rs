@@ -25,8 +25,21 @@ fn main() {
         match header {
             ProtoName::Example => {
                 let parsed: ExampleProtocol = parse_message(header, tail).unwrap();
-                if !String::from_utf8(parsed.data).unwrap().contains("got it") {
-                    send_response(String::from(from_node), String::from("got it")).unwrap();
+                if !String::from_utf8(parsed.data.clone())
+                    .unwrap()
+                    .contains("got it")
+                {
+                    println!(
+                        "\"{}\" from {}",
+                        String::from_utf8(parsed.data.clone()).unwrap(),
+                        from_node
+                    );
+                    send_response(
+                        String::from(from_node),
+                        ("ExampleProtocol", "EXMPL"),
+                        String::from("got it"),
+                    )
+                    .unwrap();
                 }
             }
             ProtoName::Uninmplemented => {
@@ -66,16 +79,44 @@ fn parse_message_header(message: Vec<u8>) -> ProtoName {
 
 fn parse_message<T>(header: ProtoName, body: &[u8]) -> std::result::Result<T, ()>
 where
-    T: Protocol + for<'a> serde::Deserialize<'a>,
+    T: Protocol + for<'a> serde::Deserialize<'a> + std::fmt::Debug,
 {
     match header {
-        ProtoName::Example => ron::from_str(&String::from_utf8(body.to_vec()).unwrap()).unwrap(),
+        ProtoName::Example => {
+            let res = ron::from_str(&String::from_utf8(body.to_vec()).unwrap()).unwrap();
+            println!("res: {:?}", res);
+            res
+        }
         _ => Err(()),
     }
 }
 
-fn send_response(node: String, packet: String) -> Result<()> {
-    let mut child = Command::new(format!("dtnsend -r dtn://{node}/incoming"))
+fn send_response(
+    node: String,
+    (packet_type, packet_header): (&str, &str),
+    packet: String,
+) -> Result<()> {
+    let mut packet_data = String::new();
+    packet_data.push_str(packet_header);
+    packet_data.push_str("Ok(");
+    packet_data.push_str(packet_type);
+    packet_data.push('(');
+    packet_data.push_str(&chr_array_from_string(packet));
+    packet_data.push_str("))");
+    println!("Generated packet: {}", packet_data);
+    /*
+    let echo = Command::new("echo")
+        .arg("-n")
+        .arg(&packet_data)
+        .stdout(Stdio::piped())
+        .spawn()?
+        .wait_with_output()
+        .expect("failed to spawn parent process");
+    */
+
+    let mut child = Command::new("dtnsend")
+        .arg("-r")
+        .arg(format!("dtn://{}/incoming", node))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -84,12 +125,23 @@ fn send_response(node: String, packet: String) -> Result<()> {
     let mut stdin = child.stdin.take().expect("Failed to open stdin");
     std::thread::spawn(move || {
         stdin
-            .write_all(packet.as_bytes())
+            .write_all(&packet_data.as_bytes())
             .expect("Failed to write to stdin");
     });
 
     let output = child.wait_with_output().expect("Failed to read stdout");
-    println!("This is the output of the child process: {output:?}");
+    println!("{output:?}");
 
     Ok(())
+}
+
+fn chr_array_from_string(str: String) -> String {
+    let mut res = String::from("data:[");
+    for chr in str.chars() {
+        let nchr: u32 = chr.into();
+        res.push_str(&nchr.to_string());
+        res.push(',');
+    }
+    res.push(']');
+    res
 }

@@ -44,5 +44,6 @@ CONTAINER ID   IMAGE             COMMAND      CREATED              STATUS       
 
 And your instance is all set! If the node can talk to other DTN-accessible nodes, it will automatically do so.
 
-## The Node's Space Suit
+## The Node's Theoretical Space Suit
 
+![Picture of ship](https://github.com/Dom-1/ASPRN/blob/main/ASPRNModule.webp?raw=true)
